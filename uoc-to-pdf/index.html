@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>UoC To PDF Utility</title>
+  <link href="js/lib/jquery-ui-1.12.1.custom/jquery-ui.css" rel="stylesheet">
+  <link href="js/lib/jquery-ui-1.12.1.custom/jquery-ui.structure.css" rel="stylesheet">
+  <link href="js/lib/jquery-ui-1.12.1.custom/jquery-ui.theme.css" rel="stylesheet">
+  <style>
+    .pdfobject-container { height: 100rem; border: 1rem solid rgba(0,0,0,.1); }
+    /*#image-pane img { max-width:10%; height:auto; }*/
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="js/lib/jspdf.umd.min.js"></script>
+  <script type="text/javascript" src="js/lib/pdfobject.min.js"></script>
+  <script type="text/javascript" src="js/lib/html2canvas.min.js"></script>
+  <script type="text/javascript" src="js/lib/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="js/lib/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+  <script type="text/javascript" src="js/lib/underscore-umd-min.js"></script>
+  <script type="text/javascript" src="js/defer.js"></script>
+  <script type="text/javascript" src="js/api.js"></script>
+  <script type="text/javascript" src="js/uoc-to-pdf.js"></script>
+  <script>
+    const jsPDF = window.jspdf.jsPDF
+    const PDFObject = window.PDFObject;
+
+    function error(msg) { console.error(msg) }
+
+    $( document ).ready(function() {
+      const mdBase = "https://services.prod.env.cudl.link/v1/metadata"
+      const option = "ead"
+      switch(option) {
+        case "ead": fetch(`${mdBase}/ead/MS-RGO-00014-00023`); break;
+        case "tei": fetch(`${mdBase}/tei/MS-H-17809`); break;
+        default   : break;
+      }
+    });
+  </script>
+  <div>
+    <div>
+      <h2 class="demoHeaders">Progressbar1</h2>
+      <div id="progressbar1"></div>
+    </div>
+    <div>
+      <h2 class="demoHeaders">Progressbar2</h2>
+      <div id="progressbar2"></div>
+    </div>
+    <div>
+      <h2 class="demoHeaders">Progressbar3</h2>
+      <div id="progressbar3"></div>
+    </div>
+  </div>
+  <div>
+    <div id="image-pane"></div>
+    <div id="preview-pane"></div>
+  </div>
+</body>
+
