@@ -9,18 +9,6 @@ const pdfObjOptions = {
   /*PDFJS_URL: "PDF.js/web/viewer.html"*/
 };
 
-function fetch(metadataUrl) {
-  const req = new XMLHttpRequest();
-  req.open("GET", metadataUrl);
-  req.overrideMimeType("text/xml")
-  req.onreadystatechange = function () {
-    if (req.readyState === 4 && req.status === 200) {
-      update(req.responseXML);
-    }
-  };
-  req.send(null);
-}
-
 function progressBarUpdater(bar) {
   bar.progressbar({value: 0})
   return function(c, t) {
@@ -34,12 +22,14 @@ function update(metadata) {
   const pDocPages  = progressBarUpdater($("#progressbar3"))
   const pDocImages = progressBarUpdater($("#progressbar4"))
 
-  const dPages  = _.partial(deferPages, _, 100)
+  const dPages  = _.partial(deferPages, _)
+  const dFilter = _.partial(deferFilter, _, 5)
   const dImages = _.partial(deferImages, _, pImages)
   const dData   = _.partial(deferData, _, pData)
   const dEmbed  = _.partial(deferEmbed, _)
 
   return dPages(metadata)
+    .pipe(dFilter)
     .pipe(dImages)
     .pipe(dData)
     .pipe(data => {
@@ -50,18 +40,27 @@ function update(metadata) {
     .pipe(dEmbed)
 }
 
+function deferFilter(metadata) {
+  const d = $.Deferred()
+  let start = $('#docRangeStart');
+  let stop = $('#docRangeStop');
+  start.prop('defaultValue', 1)
+  stop.prop('defaultValue', metadata.length)
 
-function asPages(metadata, limit) {
-  return collectMetadata(metadata).filter((elem, idx) =>
-    (limit && idx < limit) || elem.orientation !== 'portrait'
-  )
+  $('#submitRange').on('click', () => {
+    const rStart = start.prop('value')
+    const rStop = stop.prop('value')
+    const res = metadata.filter((elem, idx) =>
+      idx >= rStart && idx <= rStop
+    )
+    $('#imageCount').text(` (${res.length})`)
+    d.resolve(res)
+  })
+  return d.promise()
 }
 
-function deferPages(metadata, limit) {
-  return defer(
-    "pages",
-    () => asPages(metadata, limit)
-  )
+function deferPages(metadata) {
+  return defer("pages", _.partial(collectMetadata, metadata))
 }
 
 function deferImages(pages, cb) {

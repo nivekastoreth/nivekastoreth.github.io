@@ -11,8 +11,11 @@
   <link rel="stylesheet" type="text/css" href="js/lib/jquery-easyui-1.10.0/themes/icon.css">
 
   <style>
-    .pdfobject-container { height: 50rem; border: 1rem solid rgba(0,0,0,.1); }
-    .ui-progressbar .ui-progressbar-value {background:teal !important}
+    body { width: 75%; }
+    #docUrl { width: 50%; }
+    .top-level .pdfobject-container { height: 50rem; border: 1rem solid rgba(0,0,0,.1); }
+    .ui-progressbar {height: 10px}
+    .ui-progressbar .ui-progressbar-value {background:teal !important;}
   </style>
 </head>
 <body>
@@ -31,28 +34,71 @@
     const jsPDF = window.jspdf.jsPDF
     const PDFObject = window.PDFObject;
 
+
     function error(msg) { console.error(msg) }
 
+    function deferIdFromUrl(url) {
+      return defer('idFromUrl', _.partial(idFromUrl, url))
+    }
+
+    function deferMetadata(id) {
+      return fetchMetadata('ead', id).catch(
+        () => fetchMetadata('tei', id)
+      )
+    }
+
     $( document ).ready(function() {
-      const mdBase = "https://services.prod.env.cudl.link/v1/metadata"
-      const option = "ead"
-      switch(option) {
-        case "ead": fetch(`${mdBase}/ead/MS-RGO-00014-00023`); break;
-        case "tei": fetch(`${mdBase}/tei/MS-H-17809`); break;
-        default   : break;
-      }
+      // $('#docRangeStart').disable()
+      // $('#docRangeStop').disable()
+      // $('#submitRange').disable()
+
+      $('.ui-progressbar').progressbar()
+
+      const sampleUrl = "http://cudl.lib.cam.ac.uk/view/MS-RGO-00014-00023/220#"
+      let urlEntry = $("#docUrl");
+      urlEntry.prop('defaultValue', sampleUrl)
+
+      let urlButton = $("#submitUrl")
+      urlButton.bind("click", () => {
+        deferIdFromUrl(urlEntry.prop('value'))
+          .pipe(deferMetadata)
+          .pipe(update)
+          .then(
+            () => console.log("done"),
+            () => console.log("error")
+          )
+      })
     });
   </script>
-  <div>
-    <div><h2>Downloading Images</h2><div id="progressbar1"></div></div>
-    <div><h2>Preparing Image Data</h2><div id="progressbar2"></div></div>
-    <div><h2>Preparing PDF Pages</h2><div id="progressbar3"></div></div>
-    <div><h2>Preparing PDF Image Data</h2><div id="progressbar4"></div></div>
+  <div class="top-level">
+    <div>
+      <span>Enter Document URL</span><input id="docUrl" title="URL"><button id="submitUrl">Go</button>
+    </div>
+    <div>
+      <span>Page Range</span>
+      <input id="docRangeStart" title="Start">
+      <input id="docRangeStop" title="Stop">
+      <button id="submitRange">Go</button>
+    </div>
+    <div>
+      <div>
+        <div>Downloading Images<span id="imageCount"></span></div>
+        <div id="progressbar1" class="ui-progressbar"></div>
+      </div>
+      <div>
+        <div>Scaling Images</div>
+        <div id="progressbar2" class="ui-progressbar"></div>
+      </div>
+      <div>
+        <div>Initializing PDF Pages</div>
+        <div id="progressbar3" class="ui-progressbar"></div>
+      </div>
+      <div>
+        <div>Rendering PDF Pages</div>
+        <div id="progressbar4" class="ui-progressbar"></div>
+      </div>
+    </div>
+    <div id="preview-pane" class="pdfobject-container"></div>
   </div>
-  <div>
-    <div id="image-pane"></div>
-    <div id="preview-pane"></div>
-  </div>
-  <div class="pdfobject-container"></div>
 </body>
 

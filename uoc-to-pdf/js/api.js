@@ -1,4 +1,17 @@
 
+const mdBase = "https://services.prod.env.cudl.link/v1/metadata"
+const idMatcher = /.*cudl\.lib\.cam\.ac\.uk\/view\/([^/]+).*/;
+
+
+function idFromUrl(url) {
+  const idMatch = url.match(idMatcher);
+  return idMatch.length > 0 ? idMatch[1] : null
+}
+
+function fetchMetadata(source, id) {
+  return $.ajax({url: `${mdBase}/${source}/${id}`, dataType: 'xml'})
+}
+
 function collectMetadata(metadata) {
   let rootType = metadata.children[0].nodeName.toLowerCase();
   switch (rootType) {
