@@ -17,11 +17,18 @@ function defer(name, fn, time) {
   return task.promise()
 }
 
-function deferEach(name, array, fn, time) {
+function deferEach(name, array, fn, cb, time) {
   const task = $.Deferred()
   const buckets = array.map(
-    (elem, idx) =>
-      defer(`${name} - ${idx}`, () => fn(elem), time)
+    (elem, idx) => defer(
+      `${name} - ${idx}`,
+      () => {
+        const res = fn(elem, idx);
+        if (cb) cb(idx + 1, array.length)
+        return res
+      },
+      time
+    )
   )
   const handler = function () {
     const res = [].slice.call(arguments).reduce(
