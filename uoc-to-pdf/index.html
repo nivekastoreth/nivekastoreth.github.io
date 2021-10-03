@@ -54,15 +54,18 @@
 
       $('.ui-progressbar').progressbar()
 
-      const defaultUrl = "http://cudl.lib.cam.ac.uk/view/MS-RGO-00014-00023/220#"
+      const defaultUrl = "http://cudl.lib.cam.ac.uk/view/MS-RGO-00014-00023"
       let urlEntry = $("#docUrl");
       urlEntry.prop('defaultValue', defaultUrl)
 
       let urlButton = $("#submitUrl")
       urlButton.bind("click", () => {
-        deferIdFromUrl(urlEntry.prop('value')).pipe(
-          id => deferMetadata(id).pipe(_.partial(update, _, id))
-        )
+        deferIdFromUrl(urlEntry.prop('value')).pipe( id => {
+          return deferMetadata(id).pipe(md => {
+            urlButton.hide()
+            return update(md, id)
+          })
+        })
       })
     });
   </script>

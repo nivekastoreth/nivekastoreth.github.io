@@ -23,7 +23,7 @@ function update(metadata, id) {
   const pDocImages = progressBarUpdater($("#progressbar4"))
 
   const dPages  = _.partial(deferPages, _)
-  const dFilter = _.partial(deferFilter, _, 5)
+  const dFilter = _.partial(deferFilter, _)
   const dImages = _.partial(deferImages, _, pImages)
   const dData   = _.partial(deferData, _, pData)
   const dEmbed  = _.partial(deferEmbed, _, id)
@@ -56,6 +56,7 @@ function deferFilter(metadata) {
     )
     $('#progressContainer').show()
     $('#imageCount').text(` (${res.length})`)
+    $('#submitRange').hide()
     d.resolve(res)
   })
   return d.promise()
@@ -116,7 +117,7 @@ function deferDocImages(doc, data, cb) {
   const ds = data.map((datum, idx) => {
     defer(`docImages-${idx}`, function () {
       if (cb) cb(idx + 1, data.length)
-      asDocImage(doc, datum, idx)
+      return asDocImage(doc, datum, idx)
     })
   })
   delay(1)(() => {
@@ -143,7 +144,7 @@ function deferEmbed(doc, id) {
       case 'view': d.resolve(embedView(doc, id)); break;
       case 'save': d.resolve(embedSave(doc, id)); break;
       default:
-        console.log(`Unknown embed type: ${embedType}`)
+        console.error(`Unknown embed type: ${embedType}`)
         d.reject()
         break;
     }
