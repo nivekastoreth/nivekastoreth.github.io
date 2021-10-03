@@ -48,39 +48,34 @@
     }
 
     $( document ).ready(function() {
-      // $('#docRangeStart').disable()
-      // $('#docRangeStop').disable()
-      // $('#submitRange').disable()
+      $('#rangeContainer').toggle()
+      $('#progressContainer').toggle()
 
       $('.ui-progressbar').progressbar()
 
-      const sampleUrl = "http://cudl.lib.cam.ac.uk/view/MS-RGO-00014-00023/220#"
+      const defaultUrl = "http://cudl.lib.cam.ac.uk/view/MS-RGO-00014-00023/220#"
       let urlEntry = $("#docUrl");
-      urlEntry.prop('defaultValue', sampleUrl)
+      urlEntry.prop('defaultValue', defaultUrl)
 
       let urlButton = $("#submitUrl")
       urlButton.bind("click", () => {
         deferIdFromUrl(urlEntry.prop('value'))
           .pipe(deferMetadata)
           .pipe(update)
-          .then(
-            () => console.log("done"),
-            () => console.log("error")
-          )
       })
     });
   </script>
   <div class="top-level">
-    <div>
+    <div id="urlContainer">
       <span>Enter Document URL</span><input id="docUrl" title="URL"><button id="submitUrl">Go</button>
     </div>
-    <div>
+    <div id="rangeContainer">
       <span>Page Range</span>
       <input id="docRangeStart" title="Start">
       <input id="docRangeStop" title="Stop">
       <button id="submitRange">Go</button>
     </div>
-    <div>
+    <div id="progressContainer">
       <div>
         <div>Downloading Images<span id="imageCount"></span></div>
         <div id="progressbar1" class="ui-progressbar"></div>
@@ -98,7 +93,9 @@
         <div id="progressbar4" class="ui-progressbar"></div>
       </div>
     </div>
-    <div id="preview-pane" class="pdfobject-container"></div>
+    <div id="documentContainer">
+      <div id="preview-pane" class="pdfobject-container"></div>
+    </div>
   </div>
 </body>
 

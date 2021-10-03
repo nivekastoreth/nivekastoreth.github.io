@@ -41,18 +41,20 @@ function update(metadata) {
 }
 
 function deferFilter(metadata) {
-  const d = $.Deferred()
+  $('#rangeContainer').toggle()
   let start = $('#docRangeStart');
   let stop = $('#docRangeStop');
   start.prop('defaultValue', 1)
   stop.prop('defaultValue', metadata.length)
 
+  const d = $.Deferred()
   $('#submitRange').on('click', () => {
     const rStart = start.prop('value')
     const rStop = stop.prop('value')
     const res = metadata.filter((elem, idx) =>
-      idx >= rStart && idx <= rStop
+      idx >= (rStart - 1) && idx < rStop
     )
+    $('#progressContainer').toggle()
     $('#imageCount').text(` (${res.length})`)
     d.resolve(res)
   })
@@ -140,9 +142,9 @@ function addPage(doc, format, orientation) {
 function getBase64Image(orientation, img) {
   const pageSize = jsPDF.getPageSize(orientation, "px", "a4")
   const canvas   = document.createElement("canvas");
-  canvas.width   = pageSize.width;
-  canvas.height  = pageSize.height;
+  canvas.width   = Math.ceil(pageSize.width);
+  canvas.height  = Math.ceil(pageSize.height);
   const ctx = canvas.getContext("2d");
-  ctx.drawImage(img, 0, 0, img.width, img.height);
+  ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
   return canvas;
 }
