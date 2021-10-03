@@ -16,7 +16,7 @@ function progressBarUpdater(bar) {
   }
 }
 
-function update(metadata) {
+function update(metadata, id) {
   const pImages    = progressBarUpdater($("#progressbar1"))
   const pData      = progressBarUpdater($("#progressbar2"))
   const pDocPages  = progressBarUpdater($("#progressbar3"))
@@ -26,7 +26,7 @@ function update(metadata) {
   const dFilter = _.partial(deferFilter, _, 5)
   const dImages = _.partial(deferImages, _, pImages)
   const dData   = _.partial(deferData, _, pData)
-  const dEmbed  = _.partial(deferEmbed, _)
+  const dEmbed  = _.partial(deferEmbed, _, id)
 
   return dPages(metadata)
     .pipe(dFilter)
@@ -125,13 +125,30 @@ function deferDocImages(doc, data, cb) {
   return d.promise()
 }
 
-function asEmbed(doc) {
-  let blob = doc.output("bloburl", {filename: "uoc-document.pdf"})
+function embedSave(doc, id) {
+  return doc.output("save", {filename: `uoc-${id}.pdf`})
+}
+
+function embedView(doc, id) {
+  let blob = doc.output("bloburl", {filename: `uoc-${id}.pdf`})
   return PDFObject.embed(blob, "#preview-pane", pdfObjOptions);
 }
 
-function deferEmbed(doc) {
-  return defer("embed", _.partial(asEmbed, doc))
+function deferEmbed(doc, id) {
+  const d = $.Deferred()
+  $('#typeContainer').show()
+  $('#submitType').on('click', () => {
+    let embedType = $('input[name=typeRadio]:checked', '#typeSet').val();
+    switch (embedType) {
+      case 'view': d.resolve(embedView(doc, id)); break;
+      case 'save': d.resolve(embedSave(doc, id)); break;
+      default:
+        console.log(`Unknown embed type: ${embedType}`)
+        d.reject()
+        break;
+    }
+  })
+  return d.promise()
 }
 
 function addPage(doc, format, orientation) {

@@ -50,6 +50,7 @@
     $( document ).ready(function() {
       $('#rangeContainer').hide()
       $('#progressContainer').hide()
+      $('#typeContainer').hide()
 
       $('.ui-progressbar').progressbar()
 
@@ -59,9 +60,9 @@
 
       let urlButton = $("#submitUrl")
       urlButton.bind("click", () => {
-        deferIdFromUrl(urlEntry.prop('value'))
-          .pipe(deferMetadata)
-          .pipe(update)
+        deferIdFromUrl(urlEntry.prop('value')).pipe(
+          id => deferMetadata(id).pipe(_.partial(update, _, id))
+        )
       })
     });
   </script>
@@ -92,6 +93,16 @@
         <div>Rendering PDF Pages</div>
         <div id="progressbar4" class="ui-progressbar"></div>
       </div>
+    </div>
+    <div id="typeContainer">
+      <div id="typeSet">
+        <input type="radio" id="typeSave" name="typeRadio" value="save"/>
+        <label for="typeSave">Save</label>
+
+        <input type="radio" id="typeView" name="typeRadio" value="view" checked="checked"/>
+        <label for="typeView">View</label>
+      </div>
+      <button id="submitType">Go</button>
     </div>
     <div id="documentContainer">
       <div id="preview-pane" class="pdfobject-container"></div>
