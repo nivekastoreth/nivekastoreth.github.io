@@ -1,8 +1,8 @@
 const pdfObjOptions = {
   pdfOpenParams: {
-    navpanes: 0,
+    navpanes: 1,
     toolbar: 1,
-    statusbar: 0,
+    statusbar: 1,
     view: "FitV"
   },
   forcePDFJS: true,
@@ -41,7 +41,7 @@ function update(metadata) {
 }
 
 function deferFilter(metadata) {
-  $('#rangeContainer').toggle()
+  $('#rangeContainer').show()
   let start = $('#docRangeStart');
   let stop = $('#docRangeStop');
   start.prop('defaultValue', 1)
@@ -54,7 +54,7 @@ function deferFilter(metadata) {
     const res = metadata.filter((elem, idx) =>
       idx >= (rStart - 1) && idx < rStop
     )
-    $('#progressContainer').toggle()
+    $('#progressContainer').show()
     $('#imageCount').text(` (${res.length})`)
     d.resolve(res)
   })
@@ -126,7 +126,8 @@ function deferDocImages(doc, data, cb) {
 }
 
 function asEmbed(doc) {
-  return PDFObject.embed(doc.output("bloburl"), "#preview-pane", pdfObjOptions);
+  let blob = doc.output("bloburl", {filename: "uoc-document.pdf"})
+  return PDFObject.embed(blob, "#preview-pane", pdfObjOptions);
 }
 
 function deferEmbed(doc) {
